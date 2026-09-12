@@ -1,4 +1,4 @@
-Projet : Serveur Ubuntu 22.04.5 LTS sur Raspberry Pi Zero 2 W + Interface Web Cockpit
+Projet : Serveur Ubuntu 22.04.5 LTS sur Raspberry Pi Zero 2 W + Interface Web Cockpit + Samba
 
 Matériel utilisé :
 - Raspberry Pi Zero 2 W
