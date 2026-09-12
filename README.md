@@ -84,7 +84,81 @@ Exemple :
 Un message de sécurité apparaît (certificat auto-signé).
 Cliquer sur Avancé → Continuer.
 
+Nouveaux
+
 Se connecter avec :
 
 Nom d’utilisateur : xxxxx
 Mot de passe : xxxxx
+
+(7) 🟩 Installer un serveur de fichiers Samba
+
+Samba permet de créer un partage de fichiers accessible depuis les ordinateurs du réseau local. Dans ce projet, le partage est stocké sur la carte microSD du Raspberry Pi.
+
+- Installation de Samba
+Mettre à jour les paquets puis installer Samba :
+sudo apt update
+sudo apt install samba samba-common-bin smbclient -y
+
+- Création du dossier partagé
+Créer le dossier qui contiendra les fichiers :
+sudo mkdir -p /srv/samba/partage
+
+- Création de l'utilisateur
+Créer un utilisateur dédié au partage :
+sudo adduser utilisateur1
+
+- Donner les droits sur le dossier :
+sudo chown -R utilisateur1:utilisateur1 /srv/samba/partage
+sudo chmod -R 770 /srv/samba/partage
+
+- Ajouter l'utilisateur à Samba :
+sudo smbpasswd -a utilisateur1
+sudo smbpasswd -e utilisateur1
+
+- Configuration du partage
+Sauvegarder la configuration originale :
+sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
+
+- Modifier la configuration :
+sudo nano /etc/samba/smb.conf
+
+- Ajouter à la fin du fichier :
+[Partage]
+   path = /srv/samba/partage
+   browseable = yes
+   read only = no
+   writable = yes
+   valid users = utilisateur1
+   force user = utilisateur1
+   create mask = 0660
+   directory mask = 0770
+
+- Vérifier la configuration :
+sudo testparm
+
+- Redémarrer Samba et l'activer au démarrage :
+sudo systemctl restart smbd
+sudo systemctl enable smbd
+
+- Vérifier que le service fonctionne :
+sudo systemctl status smbd
+
+- Test du partage
+Tester les partages Samba depuis le Raspberry Pi :
+smbclient -L localhost -U utilisateur1
+
+- Le partage "Partage" doit apparaître.
+
+- Pour connaître l'adresse IP du Raspberry Pi :
+hostname -I
+
+- Depuis un ordinateur Windows connecté au même réseau, ouvrir l'explorateur de fichiers et saisir :
+
+\\IP_DU_RASPBERRY\Partage
+Exemple : \\192.168.1.25\Partage
+L'utilisateur "utilisateur1" et son mot de passe Samba sont ensuite utilisés pour accéder aux fichiers.
+
+- Résultat
+Le Raspberry Pi fonctionne maintenant comme un petit serveur de fichiers sur le réseau local. Les fichiers peuvent être créés, modifiés et consultés depuis un ordinateur Windows grâce au protocole SMB/Samba.
+
